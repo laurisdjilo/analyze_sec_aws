@@ -20,12 +20,22 @@ This project is a PoC of an automated AWS architecture intended to query the Sec
     ```
     cdk bootstrap aws://ACCOUNT-NUMBER/REGION
     ```
-5) Run the command below being at the root of the repository. Don't forget to add the parameter `--region` (mentioning the region from step 4). And eventually the parameter `--profile` if necessary. This will provision your AWS account with the resources corresponding to the architecture above.
+5) Being, at the respository's root, run the commands below to create a Python virtual environment, activate it and finally install the app's requirements.
+    ```
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
+    In case you're on Windows activate with the command below instead
+    ```
+    .\.venv\Scripts\activate
+    ```
+6) Run the command below being at the root of the repository. Don't forget to add the parameter `--region` (mentioning the region from step 4). And eventually the parameter `--profile` if necessary. This will provision your AWS account with the resources corresponding to the architecture above.
     ```
     cdk deploy -c glue_db_name="DATABASE-NAME" -c bucket_name="BUCKET-NAME"
     ```
     Note that a Glue database with the name you'll give will be created, and an S3 bucket with the name you mentioned will be created as well.
-6) Run the commands below to catchup on the SEC financial statement datasets
+7) Run the commands below to catchup on the SEC financial statement datasets
     ```
     aws glue start-workflow-run --name catchup_sec_fs_dataset_pipeline
     ```
