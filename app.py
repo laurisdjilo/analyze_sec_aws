@@ -7,7 +7,7 @@ from analyze_sec_aws.analyze_sec_aws_stack import AnalyzeSecAwsStack
 
 
 app = cdk.App()
-AnalyzeSecAwsStack(app, "AnalyzeSecAwsStack",
+AnalyzeSecAwsStack(app, "AnalyzeSecAwsStack", stack_name="AnalyzeSecAwsStack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
@@ -15,7 +15,7 @@ AnalyzeSecAwsStack(app, "AnalyzeSecAwsStack",
     # Uncomment the next line to specialize this stack for the AWS Account
     # and Region that are implied by the current CLI configuration.
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+    env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 
     # Uncomment the next line if you know exactly what Account and Region you
     # want to deploy the stack to. */

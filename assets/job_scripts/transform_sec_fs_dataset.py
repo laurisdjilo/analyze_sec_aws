@@ -12,10 +12,10 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 s3_client = boto3.Session().client("s3")
 
-args = getResolvedOptions(sys.argv, ["database", "table_name", "table_s3a_location", "raw_s3_bucket", "raw_s3_prefix", \
-    "write_mode", "bucket_table", "num_buckets", "bucket_cols", "partition_by_file_year",  "archive_s3_bucket", "archive_s3_prefix"])
+args = getResolvedOptions(sys.argv, ["database", "table_name", "table_s3a_location", "s3_bucket", "raw_s3_prefix", \
+    "write_mode", "cluster_table", "num_clusters", "cluster_cols", "partition_by_file_year", "archive_s3_prefix"])
 
-data_frame = spark.read.format("csv").option("header", "true").option("sep", "\t").load("s3://{}/{}".format(args["raw_s3_bucket"], args["raw_s3_prefix"]))
+data_frame = spark.read.format("csv").option("header", "true").option("sep", "\t").load("s3://{}/{}".format(args["s3_bucket"], args["raw_s3_prefix"]))
 
 data_frame = data_frame.withColumn("original_file_name", F.element_at(F.split(F.input_file_name(),"/"), -1))
 if args["partition_by_file_year"] == "true":
@@ -61,21 +61,21 @@ if spark.catalog._jcatalog.tableExists(args["database"], args["table_name"]):
     
     data_frame.write.insertInto(args["database"]+"."+args["table_name"])
 else:
-    if args["partition_by_file_year"] == "true" and args["bucket_table"] == "true":
+    if args["partition_by_file_year"] == "true" and args["cluster_table"] == "true":
         data_frame.write.option("path", args["table_s3a_location"])\
             .format("parquet").mode(args["write_mode"])\
             .partitionBy("original_file_year")\
-            .bucketBy(int(args["num_buckets"]), args["bucket_cols"].split(","))\
+            .bucketBy(int(args["num_clusters"]), args["cluster_cols"].split(","))\
             .saveAsTable(args["database"]+"."+args["table_name"])
-    elif args["partition_by_file_year"] == "true" and args["bucket_table"] == "false":
+    elif args["partition_by_file_year"] == "true" and args["cluster_table"] == "false":
         data_frame.write.option("path", args["table_s3a_location"])\
             .format("parquet").mode(args["write_mode"])\
             .partitionBy("original_file_year")\
             .saveAsTable(args["database"]+"."+args["table_name"])
-    elif args["partition_by_file_year"] == "false" and args["bucket_table"] == "true":
+    elif args["partition_by_file_year"] == "false" and args["cluster_table"] == "true":
         data_frame.write.option("path", args["table_s3a_location"])\
             .format("parquet").mode(args["write_mode"])\
-            .bucketBy(int(args["num_buckets"]), args["bucket_cols"].split(","))\
+            .bucketBy(int(args["num_clusters"]), args["cluster_cols"].split(","))\
             .saveAsTable(args["database"]+"."+args["table_name"])
     else:
         data_frame.write.option("path", args["table_s3a_location"])\
@@ -84,6 +84,6 @@ else:
 
 # Archive the source data files
 for file_name in file_names:
-    s3_client.copy_object(Bucket=args["archive_s3_bucket"], Key=args["archive_s3_prefix"]+file_name, CopySource={'Bucket': args["raw_s3_bucket"], 'Key': args["raw_s3_prefix"]+file_name})
-    s3_client.delete_object(Bucket=args["raw_s3_bucket"], Key=args["raw_s3_prefix"]+file_name)
+    s3_client.copy_object(Bucket=args["s3_bucket"], Key=args["archive_s3_prefix"]+file_name, CopySource={'Bucket': args["s3_bucket"], 'Key': args["raw_s3_prefix"]+file_name})
+    s3_client.delete_object(Bucket=args["s3_bucket"], Key=args["raw_s3_prefix"]+file_name)
 
