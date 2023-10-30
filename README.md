@@ -1,58 +1,55 @@
+## Purpose
+This project is a PoC of an automated AWS architecture intended to query the Security Exchange Comission (SEC) financial statement datasets using SQL.
 
-# Welcome to your CDK Python project!
+## Architecture
+![architecture.png](architecture\architecture.drawio.png)
 
-This is a blank project for CDK development with Python.
+## Deployment
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+1) Install the AWS CLI [[doc](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)] and configure your AWS credentials [[doc](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)]
+2) Install Node.js version `14.15.0` or `later`
+3) Install the AWS CDK Toolkit globally using the following Node Package Manager command.
+    ```
+    npm install -g aws-cdk
+    ```
+    Then run the following command to verify correct installation and print the version number of the AWS CDK.
+    ```
+    cdk --version
+    ```
+4) Setup the required resources in your AWS account using the command below. Add the parameter `--profile` in case you wan to use profile different from the default
+    ```
+    cdk bootstrap aws://ACCOUNT-NUMBER/REGION
+    ```
+5) Run the command below being at the root of the repository. Don't forget to add the parameter `--region` (mentioning the region from step 4). And eventually the parameter `--profile` if necessary. This will provision your AWS account with the resources corresponding to the architecture above.
+    ```
+    cdk deploy -c glue_db_name="DATABASE-NAME" -c bucket_name="BUCKET-NAME"
+    ```
+    Note that a Glue database with the name you'll give will be created, and an S3 bucket with the name you mentioned will be created as well.
+6) Run the commands below to catchup on the SEC financial statement datasets
+    ```
+    aws glue start-workflow-run --name catchup_sec_fs_dataset_pipeline
+    ```
+At this point you should be able to query the transformed SEC datasets using Athena.
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+**`Next step, we intend to build QuickSight dashboards upon these data.`**
 
-To manually create a virtualenv on MacOS and Linux:
-
+In case you want to get rid of the architecture, just run the command below. Just make sure to provide the same parameters you did at the step 5).
 ```
-$ python -m venv .venv
-```
-
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
+cdk destroy -c glue_db_name="DATABASE-NAME" -c bucket_name="BUCKET-NAME"
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+## Useful links
 
-## Useful commands
+- SEC Financial Datasets presentation : https://www.sec.gov/dera/data/financial-statement-data-sets
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+- SEC Financial Datasets description : https://www.sec.gov/files/aqfs.pdf
 
-Enjoy!
+- SEC's list of forms : https://www.sec.gov/forms
+
+- SEC's EDGAR tool to search for submissions : https://www.sec.gov/edgar/search/#
+
+- How to read an 8-K form : https://www.sec.gov/oiea/investor-alerts-and-bulletins/how-read-8-k
+
+## Tips
+
+- To find a submission's document, just follow the link "https://www.sec.gov/Archives/edgar/data/{}/000003799622000056/f-20220819.htm".format(cik, adsh.replacd("-", ""), instance.replace(".xml", "").replace("_", "."))
