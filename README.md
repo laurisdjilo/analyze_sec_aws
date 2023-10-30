@@ -26,7 +26,7 @@ This project is a PoC of an automated AWS architecture intended to query the Sec
     source .venv/bin/activate
     pip install -r requirements.txt
     ```
-    In case you're on Windows activate with the command below instead
+    **Note**: In case you're on Windows, use this command instead to activate the virtual env 
     ```
     .\.venv\Scripts\activate
     ```
@@ -35,7 +35,7 @@ This project is a PoC of an automated AWS architecture intended to query the Sec
     cdk deploy -c glue_db_name="DATABASE-NAME" -c bucket_name="BUCKET-NAME"
     ```
     Note that a Glue database with the name you'll give will be created, and an S3 bucket with the name you mentioned will be created as well.
-7) Run the commands below to catchup on the SEC financial statement datasets
+7) Run the command below to catchup on the SEC financial statement datasets
     ```
     aws glue start-workflow-run --name catchup_sec_fs_dataset_pipeline
     ```
