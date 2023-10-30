@@ -2,7 +2,7 @@
 This project is a PoC of an automated AWS architecture intended to query the Security Exchange Comission (SEC) financial statement datasets using SQL.
 
 ## Architecture
-![architecture.png](architecture\architecture.drawio.png)
+![architecture.png](https://github.com/laurisdjilo/analyze_sec_aws/blob/master/architecture/architecture.drawio.png?raw=true)
 
 ## Deployment
 
